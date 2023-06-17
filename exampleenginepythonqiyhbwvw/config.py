@@ -44,7 +44,7 @@ def get_params_from_runtime_2(runtimeContext: JavaObject, root_key: str) -> Dict
         A dictionary containing the parameters.
     """
     try:
-        with open('resources/application.conf') as file:
+        with open('resources/insumos_curso_Engine/t_fdev_customers.output.schema') as file:
             config = json.load(file)
             if root_key in config:
                 return config[root_key]

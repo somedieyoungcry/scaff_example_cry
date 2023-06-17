@@ -5,12 +5,13 @@ os.environ["ENMA_CONFIG_PATH"] = os.path.join(
 )
 from py4j.java_gateway import JavaObject
 from dataproc_sdk.dataproc_sdk_utils.logging import get_user_logger
-from exampleenginepythonqiyhbwvw import get_params_from_runtime
+from exampleenginepythonqiyhbwvw.config import get_params_from_runtime
+
 
 if os.path.isfile(os.path.join(os.path.dirname(__file__), "dataflow.py")):
-    from exampleenginepythonqiyhbwvw import dataproc_dataflow  # noqa: E402
+    from exampleenginepythonqiyhbwvw.dataflow import dataproc_dataflow  # noqa: E402
 else:
-    from exampleenginepythonqiyhbwvw import DataprocExperiment  # noqa: E402
+    from exampleenginepythonqiyhbwvw.experiment import DataprocExperiment   # noqa: E402
 
 
 class Main:
@@ -41,7 +42,7 @@ class Main:
         try:
             config = runtimeContext.getConfig()
             if not config.isEmpty():
-                root_key = "EnvironmentVarsPM"
+                root_key = "readSchemas"
                 parameters = get_params_from_runtime(runtimeContext, root_key)
         except Exception as e:
             self.__logger.error(e)
