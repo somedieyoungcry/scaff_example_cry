@@ -50,6 +50,17 @@ class Main:
 
         self.__logger.info(f"parameters: {parameters}")
 
+        """try:
+            config = runtimeContext.getConfig()
+            if not config.isEmpty():
+                root_key = "params"
+                parameters = get_params_from_runtime(runtimeContext, root_key)
+        except Exception as e:
+            self.__logger.error(e)
+            return -1
+
+        self.__logger.info(f"parameters: {parameters}")"""
+
         # PART 2 - BUSSINESS LOGIC
         try:
             self.__logger.info("Started 'run' method")

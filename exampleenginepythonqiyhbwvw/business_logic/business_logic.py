@@ -1,5 +1,5 @@
 import configparser
-from datetime import datetime
+from datetime import date
 from typing import Tuple
 
 from dataproc_sdk.dataproc_sdk_utils.logging import get_user_logger
@@ -19,6 +19,8 @@ class BusinessLogic:
         """
         self.__logger = get_user_logger(BusinessLogic.__qualname__)
 
+    # ----------------------------------------------------------------
+    # Inician funciones de ejemplos de videos Engine
     def filter_by_age_and_vip(self, df: DataFrame) -> DataFrame:
         self.__logger.info("Apply filter by edad and vip status")
         return df.where((f.col("edad") >= 30) & (f.col("edad") <= 50) & (f.col("vip") == "true"))
@@ -38,6 +40,8 @@ class BusinessLogic:
         self.__logger.info("Generating hash column")
         return df.select(*df.columns, f.sha2(f.concat_ws("||", *df.columns), 256).alias("hash"))
 
+    # ----------------------------------------------------------------
+    # Inician funciones de ejercicios propuestos
     def count_cols(self, df: DataFrame) -> DataFrame:
         self.__logger.info("Count columns")
         count_df = df.select([f.count(c).alias(c) for c in df.columns])
@@ -119,9 +123,12 @@ class BusinessLogic:
         no_count = df.filter(f.col("nfc") == "No").count()
         return no_count
 
-    def add_jwk_date(self, df: DataFrame) -> DataFrame:
-        config = configparser.ConfigParser()
-        config.read("resources/application.conf")
-        jwk_date = config.get("params", "jwk_date")
-        add_jwk = df.withColumn("jwk", f.lit(jwk_date))
-        return add_jwk
+    def add_jwk_date(self, df: DataFrame, field: str) -> DataFrame:
+        return df.withColumn("jwk_date", f.lit(field))
+
+    def calc_age(self, df: DataFrame) -> DataFrame:
+        current_date = date.today()
+        df = df.withColumn("Edad", f.floor(f.datediff(f.lit(current_date), f.col("birth_date")) / 365.25))
+        return df
+
+

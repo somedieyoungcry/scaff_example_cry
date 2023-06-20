@@ -32,30 +32,6 @@ def get_params_from_runtime(runtimeContext: JavaObject, root_key: str) -> Dict:
         return {}
 
 
-def get_params_from_runtime_2(runtimeContext: JavaObject, root_key: str) -> Dict:
-    """
-    Returns parameters from the runtime context.
-
-    Args:
-        runtimeContext: The runtime context object.
-        root_key: The root key where the parameters are located.
-
-    Returns:
-        A dictionary containing the parameters.
-    """
-    try:
-        with open('resources/insumos_curso_Engine/t_fdev_customers.output.schema') as file:
-            config = json.load(file)
-            if root_key in config:
-                return config[root_key]
-            else:
-                return {}
-    except FileNotFoundError:
-        return {}
-    except json.JSONDecodeError:
-        return {}
-
-
 def get_params_from_job_env(config_path: str) -> Dict:
     """
     Returns environment variables from os environment
