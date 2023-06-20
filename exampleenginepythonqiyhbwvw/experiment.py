@@ -72,42 +72,48 @@ class DataprocExperiment:
 
         phones_filtering = logic.filtered_by_phone(phones_df)
         print("Regla 1")
-        print(phones_filtering.count())
+        # print(phones_filtering.count())
         # phones_filtering.show()
 
         print("Regla 2")
         filtered_by_customers_df = logic.filtered_by_customers(customers_df)
         # filtered_by_customers_df.show()
-        print(filtered_by_customers_df.count())
+        # print(filtered_by_customers_df.count())
 
         print("Regla 3")
         join_2_tables_df = logic.join_customer_phone_tables(filtered_by_customers_df, phones_filtering)
         # join_2_tables_df.show()
-        print(join_2_tables_df.count())
+        # print(join_2_tables_df.count())
 
         print("Regla 4")
         filtering_vip_df = logic.filtering_vip(join_2_tables_df)
         # filtering_vip_df.show()
-        print(filtering_vip_df.count())
+        # print(filtering_vip_df.count())
 
         print("Regla 5")
-        calculate_discount_extra_df = logic.calc_discount(filtering_vip_df)
+        df_filtered = f.col("discount_extra") > 0
+        calculate_discount_extra_df = logic.calc_discount(join_2_tables_df)
         # calculate_discount_extra_df.show()
-        print(calculate_discount_extra_df.count())
+        # print(calculate_discount_extra_df.filter(df_filtered).count())
 
         print("Regla 6")
         calculate_final_price_df = logic.calc_final_price(calculate_discount_extra_df)
         # calculate_final_price_df.show()
-        print(calculate_final_price_df.count())
+        # print(calculate_final_price_df.count())
 
         print("Regla 7")
         count_top_50_records_df = logic.count_top_50(calculate_final_price_df)
-        # calculate_final_price_df.show()
-        print(count_top_50_records_df.count())
+        # count_top_50_records_df.show()
+        # print(count_top_50_records_df.count())
 
         print("Regla 8")
-        replace_null_nfc_df = logic.replace_nfc(calculate_discount_extra_df)
-        print(replace_null_nfc_df.count())
+        nfc_count = logic.replace_nfc(count_top_50_records_df)
+        nfc = logic.count_no_records(nfc_count)
+        # print(nfc)
+
+        print("Regla 9")
+        add_jwk_date_df = logic.add_jwk_date(join_2_tables_df)
+        add_jwk_date_df.select("jwk_date").show()
 
     def read_csv(self, table_id, parameters):
         return self.__spark.read \

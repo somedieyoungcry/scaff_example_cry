@@ -35,7 +35,7 @@ class Main:
 
         config = runtimeContext.getConfig()
         self.__logger.info(config.getString("params.devName"))
-        self.__logger.info(config.getString("params.date"))
+        self.__logger.info(config.getString("params.jwk_date"))
 
         # PART 1 - READ FROM CONFIGURATION
         # Reading config file for input and output paths

@@ -1,3 +1,7 @@
+import configparser
+from datetime import datetime
+from typing import Tuple
+
 from dataproc_sdk.dataproc_sdk_utils.logging import get_user_logger
 from pyspark.sql import DataFrame, Window
 import pyspark.sql.functions as f
@@ -67,23 +71,25 @@ class BusinessLogic:
     def join_customer_phone_tables(self, customers_df: DataFrame, phones_df: DataFrame) -> DataFrame:
         self.__logger.info("Join 2 tables")
         joined_df = customers_df.join(phones_df, (customers_df["customer_id"] == phones_df["customer_id"]) & (
-                customers_df["delivery_id"] == phones_df["delivery_id"]), "inner")
+            customers_df["delivery_id"] == phones_df["delivery_id"]), "inner")
         return joined_df
 
     def filtering_vip(self, df: DataFrame) -> DataFrame:
         self.__logger.info("Filtering VIP")
-        df = df.filter((f.col("prime") == "Yes") & (f.col("price_product") >= 7500.00))
-        df = df.withColumn("customer_vip", f.col("prime"))
+        df = df.withColumn("customer_vip",
+                           f.when((f.col("prime") == "Yes") & (f.col("price_product") >= 7500.00), "Yes")
+                           .otherwise("No"))
+        df = df.filter(f.col("customer_vip") == "Yes")
         return df
 
     def calc_discount(self, df: DataFrame) -> DataFrame:
-        self.__logger.info("Calculo Discount")
+        self.__logger.info("Calculando descuento")
         df_filtered = df.withColumn("discount_extra", f.when(
             (f.col("prime") == "Yes") &
             (f.col("stock_number") < 35) &
             (~f.col("brand").isin(["XOLO", "Siemens", "Panasonic", "BlackBerry"])),
             f.col("price_product") * 0.1
-        ).otherwise(0.00)).filter(f.col("discount_extra") > 0)
+        ).otherwise(0.00))
 
         return df_filtered
 
@@ -91,23 +97,31 @@ class BusinessLogic:
         self.__logger.info("Calculo Final Price")
         df = df.withColumn("final_price",
                            f.col("price_product") + f.col("taxes") - f.col("discount_amount") - f.col("discount_extra"))
-
-        average = df.select(f.avg("final_price")).first()[0]
-
-        average_df = df.withColumn("average_final_price", f.lit(average))
-
+        average_value = df.select(f.avg("final_price")).first()[0]
+        average_df = df.withColumn("average_final_price", f.lit(average_value))
         return average_df
 
     def count_top_50(self, df: DataFrame) -> DataFrame:
-        self.__logger.info("Count top 50")
+        self.__logger.info("Count top 50:")
         window = Window.partitionBy("brand").orderBy(f.col("final_price").desc())
-
         df = df.withColumn("rank", f.dense_rank().over(window))
-
-        top_50_count = df.filter(f.col("rank") <= 50).groupBy("brand").agg(f.count("*").alias("top_50_count"))
-
-        return top_50_count
+        df = df.withColumn("top_50", f.when(f.col("rank") <= 50, "Entre al top 50").otherwise("No entre al top 50"))
+        df = df.filter(f.col("top_50") == "Entre al top 50")
+        print(df.count())
+        df = df.drop("rank")
+        return df
 
     def replace_nfc(self, df: DataFrame) -> DataFrame:
-        self.__logger.info("Replace NFC")
-        return df.withColumn("nfc", f.when(f.col("nfc").isNull(), "No").otherwise(f.col("nfc")))
+        df_modified = df.withColumn("nfc", f.when(f.col("nfc").isNull(), "No").otherwise(f.col("nfc")))
+        return df_modified
+
+    def count_no_records(self, df: DataFrame) -> int:
+        no_count = df.filter(f.col("nfc") == "No").count()
+        return no_count
+
+    def add_jwk_date(self, df: DataFrame) -> DataFrame:
+        config = configparser.ConfigParser()
+        config.read("resources/application.conf")
+        jwk_date = config.get("params", "jwk_date")
+        add_jwk = df.withColumn("jwk", f.lit(jwk_date))
+        return add_jwk
