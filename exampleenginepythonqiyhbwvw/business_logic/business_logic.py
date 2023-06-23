@@ -5,7 +5,8 @@ from typing import Tuple
 from dataproc_sdk.dataproc_sdk_utils.logging import get_user_logger
 from pyspark.sql import DataFrame, Window
 import pyspark.sql.functions as f
-from pyspark.sql.types import DateType
+from pyspark.sql.types import DateType, StringType, BooleanType, IntegerType, FloatType, LongType, DoubleType, \
+    DecimalType
 
 
 class BusinessLogic:
@@ -39,6 +40,21 @@ class BusinessLogic:
     def hash_column(self, df: DataFrame) -> DataFrame:
         self.__logger.info("Generating hash column")
         return df.select(*df.columns, f.sha2(f.concat_ws("||", *df.columns), 256).alias("hash"))
+
+    def select_all_colums(self, df: DataFrame) -> DataFrame:
+        return df.select(f.col("cod_producto").cast(StringType()),
+                         f.col("cod_iuc").cast(StringType()),
+                         f.col("cod_titular").cast(StringType()),
+                         f.col("fec_alta").cast(DateType()),
+                         f.col("activo").cast(BooleanType()),
+                         f.col("cod_client").cast(StringType()),
+                         f.col("nombre").cast(StringType()),
+                         f.col("edad").cast(IntegerType()),
+                         f.col("provincia").cast(StringType()),
+                         f.col("cod_postal").cast(IntegerType()),
+                         f.col("vip").cast(BooleanType()),
+                         f.col("desc_producto").cast(StringType()),
+                         f.col("hash").cast(StringType()))
 
     # ----------------------------------------------------------------
     # Inician funciones de ejercicios propuestos
@@ -74,8 +90,7 @@ class BusinessLogic:
 
     def join_customer_phone_tables(self, customers_df: DataFrame, phones_df: DataFrame) -> DataFrame:
         self.__logger.info("Join 2 tables")
-        joined_df = customers_df.join(phones_df, (customers_df["customer_id"] == phones_df["customer_id"]) & (
-            customers_df["delivery_id"] == phones_df["delivery_id"]), "inner")
+        joined_df = customers_df.join(phones_df, (["customer_id", "delivery_id"]), "inner")
         return joined_df
 
     def filtering_vip(self, df: DataFrame) -> DataFrame:
@@ -128,7 +143,26 @@ class BusinessLogic:
 
     def calc_age(self, df: DataFrame) -> DataFrame:
         current_date = date.today()
-        df = df.withColumn("Edad", f.floor(f.datediff(f.lit(current_date), f.col("birth_date")) / 365.25))
-        return df
+        df_age = df.withColumn("age", f.floor(f.datediff(f.lit(current_date), f.col("birth_date")) / 365.25))
+        return df_age
 
-
+    def select_colums(self, df: DataFrame) -> DataFrame:
+        return df.select(f.col("city_name").cast(StringType()),
+                         f.col("street_name").cast(StringType()),
+                         f.col("credit_card_number").cast(StringType()),
+                         f.col("last_name").cast(StringType()),
+                         f.col("first_name").cast(StringType()),
+                         f.col("age").cast(IntegerType()),
+                         f.col("brand").cast(StringType()),
+                         f.col("model").cast(StringType()),
+                         f.col("nfc").cast(StringType()),
+                         f.col("country_code").cast(StringType()),
+                         f.col("prime").cast(StringType()),
+                         f.col("taxes").cast(DecimalType(9, 2)),
+                         f.col("discount_extra").cast(DecimalType(9, 2)).alias("extra_discount"),
+                         f.col("customer_vip").cast(StringType()),
+                         f.col("discount_amount").cast(DecimalType(9, 2)),
+                         f.col("price_product").cast(DecimalType(9, 2)),
+                         f.col("final_price").cast(DecimalType(9, 2)),
+                         f.col("top_50").cast(IntegerType()).alias("brands_top"),
+                         f.col("jwk_date").cast(DateType()))

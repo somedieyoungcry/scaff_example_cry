@@ -1,9 +1,11 @@
 from typing import Dict
+
+from dataproc_sdk import DatioPysparkSession
 from dataproc_sdk.dataproc_sdk_utils.logging import get_user_logger
-from pyspark.sql import SparkSession, DataFrame
 import pyspark.sql.functions as f
 
 from exampleenginepythonqiyhbwvw.business_logic.business_logic import BusinessLogic
+from exampleenginepythonqiyhbwvw.io.init_values import InitValues
 
 
 class DataprocExperiment:
@@ -16,7 +18,8 @@ class DataprocExperiment:
         Constructor
         """
         self.__logger = get_user_logger(DataprocExperiment.__qualname__)
-        self.__spark = SparkSession.builder.getOrCreate()
+        self.__logger.info("Ingresamos con Datio SparkSession")
+        self.__datio_pyspark_session = DatioPysparkSession().get_or_create()
 
     def run(self, **parameters: Dict) -> None:
         """
@@ -29,23 +32,10 @@ class DataprocExperiment:
         # - Your code starts here -
         # -------------------------
         """self.__logger.info("Executing Experiment")
-        clients_df = self.read_csv("clients", parameters)
-        contracts_df = self.read_csv("contracts", parameters)
-        products_df = self.read_csv("products", parameters)
-        # clients_df.show()
-        # clients_df.printSchema()
 
-        clients = clients_df.count()
-        clients2 = clients_df.collect()
-        clients3 = clients_df.head()
-        clients4 = clients_df.take(5)
-        clients5 = clients_df.first()
-        # print(clients)
-        # print(clients2)
-        # print(clients3)
-        # print(clients4)
-        # print(clients5)
-        # contracts_df.show()
+        init_values = InitValues()
+        clients_df, contracts_df, products_df, output_path, output_schema = \
+            init_values.initialize_inputs(parameters)
 
         logic = BusinessLogic()
         filtered_clients_df: DataFrame = logic.filter_by_age_and_vip(clients_df)
@@ -54,24 +44,37 @@ class DataprocExperiment:
         hashed_df: DataFrame = logic.hash_column(filtered_by_number_of_contracts_df)
         # hashed_df.show()
 
-        final_df: DataFrame = hashed_df\
-            .withColumn("hash", f.when(f.col("activo") == "false", f.lit("0")).otherwise(f.col("hash")))\
+        final_df: DataFrame = hashed_df \
+            .withColumn("hash", f.when(f.col("activo") == "false", f.lit("0")).otherwise(f.col("hash"))) \
             .where(f.col("hash") == "0")
 
         # final_df.show(20, False)
 
-        final_df.write.mode("overwrite").partitionBy("cod_producto", "activo").option("partitionOverwriteMode", "dynamic").parquet(str(parameters["output"]))
+        self.__datio_pyspark_session.write().mode("overwrite") \
+            .option("partitionOverwriteMode", "dynamic") \
+            .partition_by(["cod_producto", "activo"]) \
+            .datio_schema(output_schema) \
+            .parquet(logic.select_all_colums(final_df), output_path)
 
-        self.__spark.read.parquet("resources/data/output/final_table").show()"""
+        final_df.write.mode("overwrite") \
+            .partitionBy("cod_producto", "activo") \
+            .option("partitionOverwriteMode", "dynamic") \
+            .parquet(str(parameters["output_path"]))
+
+        final_df.show()
+        final_df.printSchema()"""
 
         self.__logger.info("Executing Experiment")
         jwk_date = self.get_date("jwk_date", parameters)
-        # print(jwk_date)
-        customers_df = self.read_parquet("customers", parameters)
-        phones_df = self.read_parquet("phones", parameters)
+        init_values = InitValues()
+        customers_df, phones_df, output_path_2, output_schema_2 = \
+            init_values.initialize_inputs(parameters)
         # customers_df.show()
         # phones_df.show()
         logic = BusinessLogic()
+
+        # customers_df.printSchema()
+        # phones_df.printSchema()
 
         # customers = logic.count_cols(customers_df)
         # phones = logic.count_cols(phones_df)
@@ -104,7 +107,7 @@ class DataprocExperiment:
 
         print("Regla 5")
         df_filtered = f.col("discount_extra") > 0
-        calculate_discount_extra_df = logic.calc_discount(join_2_tables_df)
+        calculate_discount_extra_df = logic.calc_discount(filtering_vip_df)
         # calculate_discount_extra_df.show()
         # print(calculate_discount_extra_df.filter(df_filtered).count())
 
@@ -126,22 +129,23 @@ class DataprocExperiment:
 
         print("Regla 9")
         add_jwk_date_df = logic.add_jwk_date(nfc_count, jwk_date)
-        add_jwk_date_df.show()
+        # add_jwk_date_df.show()
 
         print("Regla 10")
         calc_age_df = logic.calc_age(add_jwk_date_df)
-        calc_age_df.show()
+        # calc_age_df.show()
+        # print(calc_age_df)
+        calc_age_df.printSchema()
+        """calc_age_df.write \
+            .mode("overwrite") \
+            .partitionBy("jwk_date") \
+            .option("partitionOverwriteMode", "dynamic") \
+            .parquet(str(parameters["output_path_2"]))"""
 
-    def read_csv(self, table_id, parameters):
-        return self.__spark.read \
-            .option("header", "true") \
-            .option("delimiter", ",") \
-            .csv(str(parameters[table_id]))
-
-    def read_parquet(self, table_id, parameters):
-        return self.__spark.read \
-            .parquet(str(parameters[table_id]))
+        self.__datio_pyspark_session.write().mode("overwrite") \
+            .option("partitionOverwriteMode", "dynamic") \
+            .datio_schema(output_schema_2) \
+            .parquet(logic.select_colums(calc_age_df), output_path_2)
 
     def get_date(self, table_id, parameters):
         return str(parameters[table_id])
-
