@@ -1,7 +1,8 @@
 from unittest import TestCase
 from unittest.mock import patch, mock_open, MagicMock
 
-from exampleenginepythonqiyhbwvw import (
+from exampleenginepythonqiyhbwvw.config import (
+    get_params_from_job_env,
     get_params_from_config,
     get_params_from_runtime,
 )
@@ -90,4 +91,3 @@ class ConfigTestCase(TestCase):
         parameters = get_params_from_runtime(runtime, "foo")
 
         self.assertEqual(parameters, params)
-

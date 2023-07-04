@@ -7,7 +7,6 @@ import pyspark.sql.functions as f
 from exampleenginepythonqiyhbwvw.business_logic.business_logic import BusinessLogic
 from exampleenginepythonqiyhbwvw.io.init_values import InitValues
 import exampleenginepythonqiyhbwvw.common.constants as c
-import exampleenginepythonqiyhbwvw.common.input as i
 import exampleenginepythonqiyhbwvw.common.output as o
 
 
@@ -34,7 +33,7 @@ class DataprocExperiment:
         # -------------------------
         # - Your code starts here -
         # -------------------------
-        """self.__logger.info("Executing Experiment")
+        self.__logger.info("Executing Experiment")
 
         init_values = InitValues()
         clients_df, contracts_df, products_df, output_path, output_schema = \
@@ -57,9 +56,9 @@ class DataprocExperiment:
             .option(c.MODE, c.DYNAMIC) \
             .partition_by([o.cod_producto.name, o.activo.name]) \
             .datio_schema(output_schema) \
-            .parquet(logic.select_all_colums(final_df), output_path)"""
+            .parquet(logic.select_all_colums(final_df), output_path)
 
-        self.__logger.info("Executing Experiment")
+        """self.__logger.info("Executing Experiment")
         jwk_date = self.get_date("jwk_date", parameters)
         init_values = InitValues()
         customers_df, phones_df, output_path_2, output_schema_2 = \
@@ -83,59 +82,59 @@ class DataprocExperiment:
         print("Regla 1")
         phones_filtering = logic.filtered_by_phone(phones_df)
         # print(phones_filtering.count())
-        phones_filtering.show()
+        # phones_filtering.show()
 
         print("Regla 2")
         filtered_by_customers_df = logic.filtered_by_customers(customers_df)
-        filtered_by_customers_df.show()
+        # filtered_by_customers_df.show()
         # print(filtered_by_customers_df.count())
 
         print("Regla 3")
         join_2_tables_df = logic.join_customer_phone_tables(filtered_by_customers_df, phones_filtering)
-        join_2_tables_df.show()
+        # join_2_tables_df.show()
         # print(join_2_tables_df.count())
 
         print("Regla 4")
         filtering_vip_df = logic.filtering_vip(join_2_tables_df)
-        filtering_vip_df.show()
+        # filtering_vip_df.show()
         # print(filtering_vip_df.count())
 
         print("Regla 5")
         df_filtered = f.col("discount_extra") > 0
         calculate_discount_extra_df = logic.calc_discount(filtering_vip_df)
-        calculate_discount_extra_df.show()
+        # calculate_discount_extra_df.show()
         # print(calculate_discount_extra_df.filter(df_filtered).count())
 
         print("Regla 6")
         calculate_final_price_df = logic.calc_final_price(calculate_discount_extra_df)
-        calculate_final_price_df.show()
+        # calculate_final_price_df.show()
         # print(calculate_final_price_df.count())
 
         print("Regla 7")
         count_top_50_records_df = logic.count_top_50(calculate_final_price_df)
-        count_top_50_records_df.show()
+        # count_top_50_records_df.show()
         # print(count_top_50_records_df.count())
 
         print("Regla 8")
         nfc_count = logic.replace_nfc(count_top_50_records_df)
         nfc = logic.count_no_records(nfc_count)
-        nfc_count.show()
+        # nfc_count.show()
         # print(nfc)
 
         print("Regla 9")
         add_jwk_date_df = logic.add_jwk_date(nfc_count, jwk_date)
-        add_jwk_date_df.show()
+        # add_jwk_date_df.show()
 
         print("Regla 10")
         calc_age_df = logic.calc_age(add_jwk_date_df)
-        calc_age_df.show()
+        # calc_age_df.show()
         # print(calc_age_df)
         calc_age_df.printSchema()
-        """calc_age_df.write \
+        calc_age_df.write \
             .mode("overwrite") \
             .partitionBy("jwk_date") \
             .option("partitionOverwriteMode", "dynamic") \
-            .parquet(str(parameters["output_path_2"]))"""
+            .parquet(str(parameters["output_path_2"]))
 
         self.__datio_pyspark_session.write().mode("overwrite") \
             .option("partitionOverwriteMode", "dynamic") \
@@ -143,4 +142,4 @@ class DataprocExperiment:
             .parquet(logic.select_colums(calc_age_df), output_path_2)
 
     def get_date(self, table_id, parameters):
-        return str(parameters[table_id])
+        return str(parameters[table_id])"""

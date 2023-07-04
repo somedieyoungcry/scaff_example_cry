@@ -1,10 +1,9 @@
+from genericpath import exists
 import os
 from unittest import TestCase
 from unittest.mock import patch, mock_open, Mock
 
-
-from exampleenginepythonqiyhbwvw import main
-
+from exampleenginepythonqiyhbwvw.main import main
 
 MOCK_EMPTY_CONFIG = """
 {
@@ -31,13 +30,11 @@ APPLICATION_CONF_MOCK: str = """
 """
 dataflow_path = os.path.join(os.path.dirname(__file__), "dataflow.py")
 
-class TestMain(TestCase):
 
+class TestMain(TestCase):
     """
     Test class for python entrypoint execution test
     """
-
-
 
     def test_main_config(self):
 
@@ -50,8 +47,8 @@ class TestMain(TestCase):
                 "os.getenv",
                 return_value='[{"n_elem_OVERWRITE":"40", "choice_OVERWRITE":"5"}]',
             ), patch("os.path.isfile", side_effect=[True, True]
-            ), patch("os.path.join", return_value=os.getcwd()
-            ), patch(
+                     ), patch("os.path.join", return_value=os.getcwd()
+                              ), patch(
                 "builtins.open", mock_open(read_data=APPLICATION_CONF_MOCK)
             ), patch(
                 "exampleenginepythonqiyhbwvw.dataflow.dataproc_dataflow", autospec=True,
@@ -75,8 +72,8 @@ class TestMain(TestCase):
                     '[{"batch_size_OVERWRITE":"40", "epochs_OVERWRITE":"5"}]',
                     '[{"batch_size_OVERWRITE":"40", "epochs_OVERWRITE":"5"}]',
                 ],
-            ), patch("os.path.isfile", side_effect = [ True, False]
-            ), patch(
+            ), patch("os.path.isfile", side_effect=[True, False]
+                     ), patch(
                 "builtins.open", mock_open(read_data=MOCK_CONFIG)
             ), patch(
                 "exampleenginepythonqiyhbwvw.experiment.DataprocExperiment", autospec=True,
@@ -98,7 +95,7 @@ class TestMain(TestCase):
                 "os.getenv",
                 return_value='[{"choice_OVERWRITE":"5"}]',
             ), patch("os.path.isfile", return_value=True
-            ), patch("os.path.join", return_value=os.getcwd()), patch(
+                     ), patch("os.path.join", return_value=os.getcwd()), patch(
                 "builtins.open", mock_open(read_data=APPLICATION_CONF_MOCK)
             ), patch(
                 "exampleenginepythonqiyhbwvw.dataflow.dataproc_dataflow", autospec=True,
@@ -126,9 +123,9 @@ class TestMain(TestCase):
                     '[{"batch_size_OVERWRITE":"", "epochs_OVERWRITE":"5"}]',
                     '[{"batch_size_OVERWRITE":"", "epochs_OVERWRITE":"5"}]',
                 ],
-            ), patch("os.path.isfile", side_effect = [ True, False ]
-            ), patch("builtins.open", mock_open(read_data=MOCK_CONFIG)
-            ), patch(
+            ), patch("os.path.isfile", side_effect=[True, False]
+                     ), patch("builtins.open", mock_open(read_data=MOCK_CONFIG)
+                              ), patch(
                 "exampleenginepythonqiyhbwvw.experiment.DataprocExperiment", autospec=True,
             ) as mock_experiment:
                 mock_experiment_instance = mock_experiment.return_value

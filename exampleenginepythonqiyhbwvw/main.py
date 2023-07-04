@@ -5,7 +5,7 @@ os.environ["ENMA_CONFIG_PATH"] = os.path.join(
     os.path.abspath(os.path.dirname(__file__)), ".sandbox"
 )
 from dataproc_sdk.dataproc_sdk_utils.logging import get_user_logger
-from exampleenginepythonqiyhbwvw import get_params_from_config
+from exampleenginepythonqiyhbwvw.config import get_params_from_config
 
 
 def main():
@@ -24,12 +24,12 @@ def main():
         dataflow_path = os.path.join(os.path.dirname(__file__), "dataflow.py")
         if os.path.isfile(dataflow_path):
             logger.info("Executing dataflow code")
-            from exampleenginepythonqiyhbwvw import dataproc_dataflow
+            from exampleenginepythonqiyhbwvw.dataflow import dataproc_dataflow
             dataproc_dataflow.run_dataproc(**parameters)
             logger.info("Dataflow code executed")
         else:
             logger.info("Executing experiment code")
-            from exampleenginepythonqiyhbwvw import DataprocExperiment
+            from exampleenginepythonqiyhbwvw.experiment import DataprocExperiment
             entrypoint = DataprocExperiment()
             entrypoint.run(**parameters)
             logger.info("Experiment code executed")

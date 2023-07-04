@@ -33,14 +33,12 @@ class Main:
         ret_code = 0
         parameters = {}
 
-        config = runtimeContext.getConfig()
-        self.__logger.info(config.getString("params.devName"))
-        self.__logger.info(config.getString("params.jwk_date"))
-
         # PART 1 - READ FROM CONFIGURATION
         # Reading config file for input and output paths
         try:
             config = runtimeContext.getConfig()
+            self.__logger.info(config.getString("params.devName"))
+            self.__logger.info(config.getString("params.jwk_date"))
             if not config.isEmpty():
                 root_key = "readSchemas"
                 parameters = get_params_from_runtime(runtimeContext, root_key)

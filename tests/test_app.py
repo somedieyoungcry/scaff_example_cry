@@ -1,9 +1,9 @@
+import logging
 from unittest import TestCase
-from unittest.mock import MagicMock, patch
+from unittest.mock import PropertyMock, MagicMock, patch
 import os
 
-
-from exampleenginepythonqiyhbwvw import Main
+from exampleenginepythonqiyhbwvw.app import Main
 
 from py4j.java_gateway import GatewayProperty, GatewayClient, JavaObject
 from py4j.protocol import Py4JJavaError
@@ -13,8 +13,6 @@ class TestApp(TestCase):
     """
     Test class for Dataproc Pyspark job entrypoint execution
     """
-
-
 
     def test_app_empty_config(self):
         """

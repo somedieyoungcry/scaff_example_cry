@@ -1,15 +1,14 @@
-
 THREE_NUMBER: int = 3
 THIRTY_NUMBER: int = 30
 FIFTY_NUMBER: int = 50
 ZERO_NUMBER: int = 0
+YES_STRING: str = "Yes"
 TRUE_VALUE: str = "true"
 FALSE_VALUE: str = "false"
 CONCAT_SEPARATOR: str = "||"
 SHA_KEY: int = 256
 
 COUNT_COLUMN: str = "count"
-
 
 INNER_TYPE: str = "inner"
 
@@ -21,6 +20,10 @@ PRODUCTS_PATH: str = "products_path"
 PRODUCTS_SCHEMA: str = "products_schema"
 OUTPUT_PATH: str = "output_path"
 OUTPUT_SCHEMA: str = "output_schema"
+EXTRA_DISCOUNT: str = "extra_discount"
+
+CUSTOMER_PATH = ""
+PHONES_PATH = ""
 
 DELIMITER: str = "delimiter"
 HEADER: str = "header"
