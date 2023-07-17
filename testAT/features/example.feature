@@ -31,3 +31,35 @@ Feature: TestAT basic example
         | resources/data/output | edad        | be lr or eq | 50                         |
         | resources/data/output | vip         | be eq       | true                       |
         | resources/data/output | fec_alta    | be like     | [0-9]{4}-[0-9]{2}-[0-9]{2} |
+
+
+    Scenario Outline: Test output dataFrame columns
+      Given an output dataFrame phones_customers located at path <output_path>
+      When read the output dataFrame phones_customers
+      Then total columns phones_customers should be equal to <tot_columns_2>
+
+      Scenarios:
+        | output_path                       | tot_columns_2 |
+        | resources/data/output/final_table | 19            |
+
+    Scenario Outline: Test output dataFrame columns
+      Given an output dataFrame phones_customers located at path <output_path>
+      When read the output dataFrame phones_customers
+      Then <column_name> column phones_customers should <comparator> <value>
+
+      Scenarios:
+        | output_path                       | column_name  | comparator   | value                       |
+        | resources/data/output/final_table | country_code | be eq        | CH                          |
+        | resources/data/output/final_table | country_code | be eq        | IT                          |
+        | resources/data/output/final_table | country_code | be eq        | CZ                          |
+        | resources/data/output/final_table | country_code | be eq        | DK                          |
+        | resources/data/output/final_table | jwk_date     | be like      | [0-9]{4}-[0-9]{2}-[0-9]{2}  |
+        | resources/data/output/final_table | country_code | be eq 2      | MX                          |
+        | resources/data/output/final_table | country_code | be eq 2      | CA                          |
+        | resources/data/output/final_table | country_code | be eq 2      | BR                          |
+        | resources/data/output/final_table | country_code | be eq 2      | US                          |
+        | resources/data/output/final_table | country_code | be eq 2      | PE                          |
+        | resources/data/output/final_table | country_code | be eq 2      | JP                          |
+        | resources/data/output/final_table | country_code | be eq 2      | NZ                          |
+        | resources/data/output/final_table | country_code | be eq 2      | CO                          |
+        | resources/data/output/final_table | country_code | be eq 2      | AR                          |

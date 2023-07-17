@@ -55,5 +55,29 @@ def check_column_values(context: Context, column_name, comparator, value):
         assert context.output_df.filter(col(column_name).rlike(value)).count() == 0
 
 
+@Given(u'an output dataFrame phones_customers located at path {output_path}')
+def set_output_path_customers_phones(context: Context, output_path):
+    context.output_path = output_path
 
 
+@When(u'read the output dataFrame phones_customers')
+def execute_output_path_customers_phones(context: Context):
+    spark = SparkSession.builder.getOrCreate()
+    spark.stop()
+    spark = init_spark_session()
+    context.output_df = spark.read.parquet(context.output_path)
+
+
+@Then(u'total columns phones_customers should be equal to {tot_columns_2}')
+def check_total_columns_customers_phones(context: Context, tot_columns_2):
+    assert len(context.output_df.columns) == int(tot_columns_2)
+
+
+@Then(u'{column_name} column phones_customers should {comparator} {value}')
+def check_columns_values(context: Context, column_name, comparator, value):
+    if comparator == "be eq":
+        assert context.output_df.filter(col(column_name) == value).count() == 0
+    if comparator == "be like":
+        assert context.output_df.filter(~col(column_name).rlike(value)).count() == 0
+    if comparator == "be eq 2":
+        assert context.output_df.filter(col(column_name) != value).count() == 0
